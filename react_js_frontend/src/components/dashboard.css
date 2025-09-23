@@ -4,6 +4,7 @@
   --pure-border: #E5E7EB;
   --pure-surface: #F9FAFB;
   --pure-chip: #F3F4F6;
+  --primary: #374151;
 }
 
 .container {
@@ -76,4 +77,130 @@
 .item-note {
   color: var(--pure-muted);
   font-size: 0.95rem;
+}
+
+/* Filters & Contracts */
+.filters-card {
+  background: #fff;
+  border: 1px solid var(--pure-border);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (max-width: 900px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filter-label {
+  color: var(--pure-muted);
+  font-size: 0.9rem;
+}
+
+.filter-input,
+.filter-select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--pure-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--pure-text);
+}
+
+.contracts-list {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.contract-card {
+  border: 1px solid var(--pure-border);
+  border-radius: 12px;
+  background: var(--pure-surface);
+  padding: 0.75rem;
+}
+
+.contract-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.contract-title {
+  font-weight: 600;
+  color: var(--pure-text);
+}
+
+.contract-sub {
+  color: var(--pure-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.contract-sub .muted {
+  color: var(--pure-muted);
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pure-border);
+  display: inline-block;
+}
+
+.risk-pill {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--pure-border);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+.risk-pill.low { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+.risk-pill.medium { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+.risk-pill.high { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
+
+.contract-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-view {
+  background: #fff;
+  color: var(--primary);
+  border: 1px solid var(--pure-border);
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.empty-state {
+  color: var(--pure-muted);
+  border: 1px dashed var(--pure-border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fff;
 }
