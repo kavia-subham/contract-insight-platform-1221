@@ -1,66 +1,103 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { fetchUpcomingDeadlines } from '../api';
+import { fetchContracts } from '../apiContracts';
 import UploadContract from './UploadContract';
 import './dashboard.css';
 import './upload.css';
 
-/**
- * Local mock of contracts list until backend /contracts listing is wired to UI.
- * Replace with a real fetch to /contracts when ready.
- */
-const MOCK_CONTRACTS = [
-  {
-    contract_id: 'C-001',
-    filename: 'NDA_Acorn.pdf',
-    uploader: 'alex@acme.com',
-    uploaded_at: '2024-10-03T10:30:00Z',
-    risk_level: 'medium',
-    has_insights: true,
-  },
-  {
-    contract_id: 'C-002',
-    filename: 'MSA_BridgeLLC.pdf',
-    uploader: 'sam@acme.com',
-    uploaded_at: '2024-10-12T15:20:00Z',
-    risk_level: 'high',
-    has_insights: true,
-  },
-  {
-    contract_id: 'C-003',
-    filename: 'SOW_VendorX.pdf',
-    uploader: 'alex@acme.com',
-    uploaded_at: '2024-09-20T08:15:00Z',
-    risk_level: 'low',
-    has_insights: false,
-  },
-];
-
 // PUBLIC_INTERFACE
 /**
  * Dashboard shows upload area, filters/search for contracts, and upcoming deadlines.
+ * Contracts are fetched from the backend GET /contracts endpoint and filtered client-side.
  */
 export default function Dashboard() {
+  // Deadlines state
   const [deadlines, setDeadlines] = useState([]);
-  const [status, setStatus] = useState('idle'); // deadlines status: idle | loading | success | error | empty
-  const [error, setError] = useState('');
+  const [deadlinesStatus, setDeadlinesStatus] = useState('idle'); // idle | loading | success | error | empty
+  const [deadlinesError, setDeadlinesError] = useState('');
 
-  // Filters state
+  // Contracts state
+  const [contracts, setContracts] = useState([]);
+  const [contractsStatus, setContractsStatus] = useState('idle'); // idle | loading | success | error | empty
+  const [contractsError, setContractsError] = useState('');
+
+  // Filters state (client-side)
   const [textQuery, setTextQuery] = useState('');
   const [risk, setRisk] = useState('any'); // any|low|medium|high
   const [uploader, setUploader] = useState('any');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
-  // Contracts (mocked)
-  const [contracts] = useState(MOCK_CONTRACTS);
+  // Fetch contracts on mount
+  useEffect(() => {
+    let mounted = true;
+    async function loadContracts() {
+      setContractsStatus('loading');
+      setContractsError('');
+      try {
+        const data = await fetchContracts();
+        if (!mounted) return;
 
-  // Build uploader options
+        // Backend ContractSummary shape: { contract_id, filename, text_preview, has_insights }
+        // Extend with derived fields for UI filters:
+        const enriched = (Array.isArray(data) ? data : []).map((c) => {
+          return {
+            ...c,
+            // uploader isn't in API spec; fall back to 'unknown' to keep UI consistent
+            uploader: c.uploader || 'unknown',
+            // uploaded_at also not in spec; since not available, use epoch 0 to avoid filtering them out,
+            // or better, leave undefined and handle gracefully in filters.
+            uploaded_at: c.uploaded_at || null,
+            // derive risk_level from presence of insights and some simple heuristic on preview length
+            risk_level: c.has_insights ? (c.text_preview && c.text_preview.length > 300 ? 'high' : 'medium') : 'low',
+          };
+        });
+
+        setContracts(enriched);
+        setContractsStatus(enriched.length ? 'success' : 'empty');
+      } catch (e) {
+        if (!mounted) return;
+        setContractsError(e.message || 'Unknown error');
+        setContractsStatus('error');
+      }
+    }
+    loadContracts();
+    return () => { mounted = false; };
+  }, []);
+
+  // Fetch deadlines on mount
+  useEffect(() => {
+    let mounted = true;
+    async function loadDeadlines() {
+      setDeadlinesStatus('loading');
+      setDeadlinesError('');
+      try {
+        const data = await fetchUpcomingDeadlines();
+        if (!mounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          setDeadlines(data);
+          setDeadlinesStatus('success');
+        } else {
+          setDeadlines([]);
+          setDeadlinesStatus('empty');
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setDeadlinesError(e.message || 'Unknown error');
+        setDeadlinesStatus('error');
+      }
+    }
+    loadDeadlines();
+    return () => { mounted = false; };
+  }, []);
+
+  // Build uploader options from live data
   const uploaderOptions = useMemo(() => {
     const s = new Set(contracts.map(c => c.uploader).filter(Boolean));
     return Array.from(s).sort();
   }, [contracts]);
 
-  // Derived filtered contracts
+  // Derived filtered contracts from live data
   const filteredContracts = useMemo(() => {
     const q = textQuery.trim().toLowerCase();
     const fromTime = dateFrom ? new Date(dateFrom).getTime() : null;
@@ -76,38 +113,15 @@ export default function Dashboard() {
       if (risk !== 'any' && c.risk_level !== risk) return false;
       // uploader
       if (uploader !== 'any' && c.uploader !== uploader) return false;
-      // date range
-      const ts = c.uploaded_at ? new Date(c.uploaded_at).getTime() : 0;
-      if (fromTime && ts < fromTime) return false;
-      if (toTime && ts > toTime + 24 * 60 * 60 * 1000 - 1) return false; // inclusive end of day
+      // date range (handle null uploaded_at gracefully)
+      if (c.uploaded_at) {
+        const ts = new Date(c.uploaded_at).getTime();
+        if (fromTime && ts < fromTime) return false;
+        if (toTime && ts > toTime + 24 * 60 * 60 * 1000 - 1) return false; // inclusive end of day
+      }
       return true;
     });
   }, [contracts, textQuery, risk, uploader, dateFrom, dateTo]);
-
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      setStatus('loading');
-      setError('');
-      try {
-        const data = await fetchUpcomingDeadlines(); // default 7 days window
-        if (!mounted) return;
-        if (Array.isArray(data) && data.length > 0) {
-          setDeadlines(data);
-          setStatus('success');
-        } else {
-          setDeadlines([]);
-          setStatus('empty');
-        }
-      } catch (e) {
-        if (!mounted) return;
-        setError(e.message || 'Unknown error');
-        setStatus('error');
-      }
-    }
-    load();
-    return () => { mounted = false; };
-  }, []);
 
   function viewContract(contractId) {
     window.location.hash = `#/contract?contractId=${encodeURIComponent(contractId)}`;
@@ -119,9 +133,22 @@ export default function Dashboard() {
 
       <UploadContract />
 
-      {/* Filters/Search */}
+      {/* Contracts Section */}
       <section className="filters-card" aria-label="Contract Filters">
         <h3 className="title" style={{ fontSize: '1.125rem', marginBottom: '0.5rem' }}>Contracts</h3>
+
+        {/* Contracts loading/error/empty states above filters */}
+        {contractsStatus === 'loading' && (
+          <p className="description">Loading contracts…</p>
+        )}
+        {contractsStatus === 'error' && (
+          <p className="error">Failed to load contracts: {contractsError}</p>
+        )}
+        {contractsStatus === 'empty' && (
+          <p className="description">No contracts found. Upload a contract to get started.</p>
+        )}
+
+        {/* Filters/Search - shown even during loading so users can prepare filters */}
         <div className="filters-grid">
           <div className="filter-item">
             <label className="filter-label" htmlFor="q">Search</label>
@@ -161,10 +188,10 @@ export default function Dashboard() {
         </div>
 
         <div className="contracts-list">
-          {filteredContracts.length === 0 && (
+          {contractsStatus === 'success' && filteredContracts.length === 0 && (
             <div className="empty-state">No contracts match the current filters.</div>
           )}
-          {filteredContracts.map(c => (
+          {contractsStatus === 'success' && filteredContracts.map(c => (
             <div key={c.contract_id} className="contract-card">
               <div className="contract-row">
                 <div className="contract-main">
@@ -178,7 +205,9 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="contract-meta">
-                  <span className="badge">{new Date(c.uploaded_at).toLocaleDateString()}</span>
+                  <span className="badge">
+                    {c.uploaded_at ? new Date(c.uploaded_at).toLocaleDateString() : '—'}
+                  </span>
                   <button className="btn-view" onClick={() => viewContract(c.contract_id)}>
                     View
                   </button>
@@ -189,11 +218,12 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* Deadlines Section */}
       <h3 className="title" style={{ marginTop: '1.5rem', color: '#111827' }}>Upcoming Deadlines</h3>
-      {status === 'loading' && <p className="description">Loading deadlines…</p>}
-      {status === 'error' && <p className="error">Failed to load deadlines: {error}</p>}
-      {status === 'empty' && <p className="description">No upcoming deadlines in the next week.</p>}
-      {status === 'success' && (
+      {deadlinesStatus === 'loading' && <p className="description">Loading deadlines…</p>}
+      {deadlinesStatus === 'error' && <p className="error">Failed to load deadlines: {deadlinesError}</p>}
+      {deadlinesStatus === 'empty' && <p className="description">No upcoming deadlines in the next week.</p>}
+      {deadlinesStatus === 'success' && (
         <ul className="list">
           {deadlines.map((d, idx) => (
             <li key={`${d.contract_id}-${d.title}-${idx}`} className="list-item">
@@ -202,7 +232,7 @@ export default function Dashboard() {
                 <span className="item-sub">Contract: {d.contract_id}</span>
               </div>
               <div className="list-meta">
-                <span className="badge">{new Date(d.due_date).toLocaleString()}</span>
+                <span className="badge">{new Date(dueTimeSafe(d.due_date)).toLocaleString()}</span>
               </div>
               {d.note ? <div className="item-note">{d.note}</div> : null}
             </li>
@@ -211,4 +241,12 @@ export default function Dashboard() {
       )}
     </div>
   );
+}
+
+/**
+ * Make sure we can safely parse due_date strings.
+ */
+function dueTimeSafe(val) {
+  const t = new Date(val);
+  return isNaN(t.getTime()) ? new Date() : t;
 }
