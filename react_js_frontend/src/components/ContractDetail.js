@@ -65,9 +65,11 @@ export default function ContractDetail({ contractId }) {
       {status === 'error' && <p className="error">Failed to load insights: {error}</p>}
       {status === 'empty' && <p className="description">No insights available for this contract.</p>}
       {status === 'success' && (
-        <pre className="code-block" aria-label="Contract Insights JSON">
+        <div className="card-surface">
+          <pre className="code-block" aria-label="Contract Insights JSON">
 {prettyInsights}
-        </pre>
+          </pre>
+        </div>
       )}
     </div>
   );

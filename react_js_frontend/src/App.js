@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header" style={{ minHeight: 'auto', padding: '1rem' }}>
+      <header className="App-header">
         <div style={{ position: 'relative', width: '100%' }}>
           <button
             className="theme-toggle"
@@ -44,7 +44,7 @@ function App() {
           >
             {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
           </button>
-          <nav style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <nav style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', padding: '0.25rem 0 0.5rem' }}>
             <a className="App-link" href="#/">Dashboard</a>
             <a className="App-link" href="#/contract">Contract Detail</a>
           </nav>

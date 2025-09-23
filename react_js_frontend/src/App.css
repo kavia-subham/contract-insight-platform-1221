@@ -1,24 +1,22 @@
-/* CSS Variables for Theme Management */
+/* CSS Variables for Theme Management aligned with Pure White theme */
 :root {
-  /* Light theme colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #282c34;
-  --text-secondary: #61dafb;
-  --border-color: #e9ecef;
-  --button-bg: #007bff;
-  --button-text: #ffffff;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --border-color: #E5E7EB;
+  --button-bg: #374151;
+  --button-text: #FFFFFF;
 }
 
 [data-theme="dark"] {
-  /* Dark theme colors */
   --bg-primary: #1a1a1a;
-  --bg-secondary: #282c34;
-  --text-primary: #ffffff;
-  --text-secondary: #61dafb;
-  --border-color: #404040;
-  --button-bg: #0056b3;
-  --button-text: #ffffff;
+  --bg-secondary: #111315;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --border-color: #374151;
+  --button-bg: #111827;
+  --button-text: #FFFFFF;
 }
 
 .App {
@@ -29,76 +27,64 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
   background-color: var(--bg-secondary);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 1rem 0 0.5rem;
   color: var(--text-primary);
   transition: background-color 0.3s ease;
   position: relative;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .App-link {
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid transparent;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+}
+.App-link:hover {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
 }
 
 .theme-toggle {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
   background-color: var(--button-bg);
   color: var(--button-text);
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 8px 14px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.05);
 }
 
 .theme-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 0 rgba(17, 24, 39, 0.07);
+  opacity: 0.95;
 }
 
 .theme-toggle:active {
   transform: translateY(0);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* General layout spacing */
+main {
+  padding: 0 1rem 2rem;
 }
 
-/* Responsive design for mobile */
 @media (max-width: 768px) {
   .theme-toggle {
     top: 10px;
     right: 10px;
-    padding: 8px 16px;
+    padding: 8px 12px;
     font-size: 12px;
   }
 }

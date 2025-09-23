@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { fetchUpcomingDeadlines } from '../api';
+import UploadContract from './UploadContract';
 import './dashboard.css';
+import './upload.css';
 
 // PUBLIC_INTERFACE
 /**
- * Dashboard shows upcoming deadlines pulled from the backend.
+ * Dashboard shows upcoming deadlines pulled from the backend and provides an upload area.
  */
 export default function Dashboard() {
   const [deadlines, setDeadlines] = useState([]);
@@ -38,7 +40,11 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <h2 className="title">Upcoming Deadlines</h2>
+      <h2 className="title" style={{ color: '#111827' }}>Dashboard</h2>
+
+      <UploadContract />
+
+      <h3 className="title" style={{ marginTop: '1.5rem', color: '#111827' }}>Upcoming Deadlines</h3>
       {status === 'loading' && <p className="description">Loading deadlines…</p>}
       {status === 'error' && <p className="error">Failed to load deadlines: {error}</p>}
       {status === 'empty' && <p className="description">No upcoming deadlines in the next week.</p>}
