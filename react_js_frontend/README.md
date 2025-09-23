@@ -4,15 +4,14 @@ This project provides a minimal React template with a clean, modern UI and minim
 
 ## Features
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+- Pure CSS + React (no heavy UI frameworks)
+- Minimalist Pure White theme with sidebar, top bar, and main content layout
+- Backend integration via environment-based base URL
 
 ## Getting Started
 
 Environment variable:
-- REACT_APP_API_BASE_URL: Base URL of the FastAPI backend (e.g., http://localhost:8000). Create a .env file from .env.example.
+- REACT_APP_API_BASE_URL: Base URL of the FastAPI backend (e.g., http://localhost:8000). Create a `.env` file based on `.env.example`.
 
 In the project directory, you can run:
 
@@ -27,59 +26,31 @@ Launches the test runner in interactive watch mode.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder.
 
-## Customization
+## Layout
 
-### Colors
+The app uses a simple grid-based layout:
+- Sidebar for navigation
+- Top bar with theme toggle and profile area
+- Main content area for Dashboard, upload, contract list, and Contract Detail with PDF/insights
 
-The main brand colors are defined as CSS variables in `src/App.css`:
+Styles are defined in:
+- `src/App.css` – base theme variables
+- `src/layout.css` – app shell layout (sidebar/topbar/content)
+- `src/components/*.css` – component styles
 
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
+## Backend Integration
 
-### Components
+The UI integrates with these endpoints:
+- GET `/contracts` – list contracts
+- POST `/contracts` – upload a contract PDF
+- GET `/contracts/{contract_id}/insights` – get insights JSON
+- GET `/deadlines/upcoming` – upcoming deadline items
 
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
+Set `REACT_APP_API_BASE_URL` to the backend root to use absolute URLs; if not set, relative paths are used assuming a reverse-proxy.
 
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
+## Notes
 
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Contract PDF rendering is a lightweight stub with anchors corresponding to insights (no heavy PDF viewer dependency).
+- Ensure CORS is enabled on the backend if serving from different origins.
