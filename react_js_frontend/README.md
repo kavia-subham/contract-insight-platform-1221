@@ -11,6 +11,9 @@ This project provides a minimal React template with a clean, modern UI and minim
 
 ## Getting Started
 
+Environment variable:
+- REACT_APP_API_BASE_URL: Base URL of the FastAPI backend (e.g., http://localhost:8000). Create a .env file from .env.example.
+
 In the project directory, you can run:
 
 ### `npm start`

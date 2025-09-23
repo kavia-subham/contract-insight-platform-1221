@@ -1,0 +1,25 @@
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.title {
+  margin: 0 0 1rem;
+}
+.description {
+  color: var(--text-secondary);
+}
+.error {
+  color: #EF4444;
+}
+.code-block {
+  text-align: left;
+  background: #0b1021;
+  color: #e6edf3;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
